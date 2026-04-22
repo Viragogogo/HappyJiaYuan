@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>看看你是什么猫</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@300;400;700&display=swap');
+    
+    :root {
+      --theme: #ff8e8e;
+      --bg: #fffcfc;
+      --text: #4a4a4a;
+      --tag-bg: #fff0f0;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Sans SC', sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #game-container {
+      width: 100%; max-width: 450px; height: 100%;
+      position: relative; display: flex; flex-direction: column;
+      background: white; box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    }
+
+    .cute-font { font-family: 'ZCOOL KuaiLe', cursive; }
+
+    /* Start Screen */
+    #start-screen {
+      flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
+      padding: 40px; text-align: center;
+    }
+    .main-title { font-size: 42px; color: var(--theme); margin-bottom: 15px; }
+    .start-img { width: 180px; height: 180px; margin-bottom: 30px; animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+    .btn-primary {
+      padding: 16px 50px; font-size: 20px; background: var(--theme); border: none;
+      border-radius: 50px; color: white; cursor: pointer; transition: 0.3s;
+      box-shadow: 0 6px 12px rgba(255, 142, 142, 0.3);
+    }
+
+    /* Quiz Area */
+    #quiz-area { display: none; flex-direction: column; height: 100%; padding: 30px 25px; }
+    .progress-container { margin-bottom: 30px; }
+    .progress-bar { height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; }
+    #progress-fill { height: 100%; background: var(--theme); width: 0%; transition: 0.4s; }
+    
+    .question-text { font-size: 20px; line-height: 1.6; font-weight: 700; margin-bottom: 35px; color: #333; min-height: 64px; }
+
+    .options { display: flex; flex-direction: column; gap: 12px; }
+    .option-btn {
+      padding: 18px; background: #fff; border: 1px solid #eee;
+      border-radius: 15px; color: var(--text); font-family: inherit;
+      font-size: 15px; text-align: left; cursor: pointer; transition: 0.2s;
+    }
+    .option-btn:hover { border-color: var(--theme); background: var(--tag-bg); }
+
+    /* Result Screen */
+    #result-screen {
+      display: none; flex-direction: column; align-items: center;
+      padding: 30px 20px; overflow-y: auto; background: var(--bg);
+    }
+    .result-header { text-align: center; margin-bottom: 20px; width: 100%; }
+    .cat-name { font-size: 26px; color: var(--theme); margin-bottom: 15px; }
+    
+    .tag-container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 25px; }
+    .tag-item { background: white; border: 1px solid var(--theme); color: var(--theme); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+
+    .analysis-card {
+      background: white; border-radius: 20px; padding: 25px; width: 100%;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 25px;
+    }
+    .analysis-section { margin-bottom: 20px; }
+    .section-title { font-size: 16px; font-weight: 700; color: var(--theme); margin-bottom: 10px; display: flex; align-items: center; }
+    .section-title::before { content: "◆"; margin-right: 8px; font-size: 12px; }
+    .section-content { font-size: 14px; line-height: 1.8; color: #666; text-align: justify; }
+    
+    .suggestion-box { background: var(--tag-bg); padding: 15px; border-radius: 12px; font-size: 13px; color: #886666; font-style: italic; }
+    .cat-illustration { width: 160px; height: 160px; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <div id="start-screen">
+      <div class="start-img">
+        <svg viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="45" fill="#fff0f0"/>
+          <path d="M30 40 L20 15 L45 35 Z" fill="#ff8e8e"/>
+          <path d="M70 40 L80 15 L55 35 Z" fill="#ff8e8e"/>
+          <circle cx="40" cy="50" r="3" fill="#4a4a4a"/>
+          <circle cx="60" cy="50" r="3" fill="#4a4a4a"/>
+          <path d="M45 65 Q50 70 55 65" fill="none" stroke="#4a4a4a" stroke-width="2"/>
+        </svg>
+      </div>
+      <h1 class="main-title cute-font">看看你是什么猫</h1>
+      <p style="color:#bbb; margin-bottom:40px; font-size: 14px;">10道题深度解析你的猫系人格</p>
+      <button class="btn-primary cute-font" onclick="startQuiz()">开始探索</button>
+    </div>
+
+    <div id="quiz-area">
+      <div class="progress-container">
+        <div class="progress-bar"><div id="progress-fill"></div></div>
+      </div>
+      <p id="question-text" class="question-text"></p>
+      <div class="options" id="options"></div>
+    </div>
+
+    <div id="result-screen">
+      <div class="result-header">
+        <div id="result-illustration" class="cat-illustration"></div>
+        <h2 id="result-name" class="cat-name cute-font"></h2>
+        <div id="tag-container" class="tag-container"></div>
+      </div>
+      
+      <div class="analysis-card">
+        <div class="analysis-section">
+          <div class="section-title">性格深度解析</div>
+          <div id="analysis-main" class="section-content"></div>
+        </div>
+        <div class="analysis-section">
+          <div class="section-title">社交与情感</div>
+          <div id="analysis-social" class="section-content"></div>
+        </div>
+        <div class="suggestion-box" id="analysis-tip"></div>
+      </div>
+      
+      <button class="btn-primary cute-font" style="width:100%; margin-bottom: 40px;" onclick="location.reload()">重新测试</button>
+    </div>
+  </div>
+
+  <script>
+    const catSVGs = {
+      F: `<svg viewBox="0 0 100 100"><circle cx="50" cy="60" r="30" fill="#fff0f5"/><path d="M35 40 L25 15 L45 35 Z" fill="#ffb6c1"/><path d="M65 40 L75 15 L55 35 Z" fill="#ffb6c1"/><circle cx="42" cy="55" r="2.5" fill="#4a4a4a"/><circle cx="58" cy="55" r="2.5" fill="#4a4a4a"/><path d="M45 65 Q50 70 55 65" fill="none" stroke="#ffb6c1" stroke-width="2"/><circle cx="35" cy="60" r="5" fill="#ffdbdb" opacity="0.6"/><circle cx="65" cy="60" r="5" fill="#ffdbdb" opacity="0.6"/></svg>`,
+      P: `<svg viewBox="0 0 100 100"><circle cx="50" cy="60" r="30" fill="white" stroke="#4a4a4a" stroke-width="1"/><path d="M50 30 Q70 35 75 60 L80 80 Q50 90 20 80 Z" fill="#4a4a4a" opacity="0.1"/><path d="M35 40 L25 15 L45 35 Z" fill="#4a4a4a"/><path d="M65 40 L75 15 L55 35 Z" fill="white" stroke="#4a4a4a"/><circle cx="42" cy="55" r="3" fill="#4a4a4a"/><circle cx="58" cy="55" r="3" fill="#4a4a4a"/><path d="M48 68 L52 64 M48 64 L52 68" stroke="#ff8e8e" stroke-width="2"/></svg>`,
+      I: `<svg viewBox="0 0 100 100"><circle cx="50" cy="60" r="30" fill="#4a4a4a"/><path d="M35 40 L25 15 L45 35 Z" fill="#4a4a4a"/><path d="M65 40 L75 15 L55 35 Z" fill="#4a4a4a"/><circle cx="40" cy="55" r="4" fill="#ffd700"/><circle cx="60" cy="55" r="4" fill="#ffd700"/><rect x="38" y="54" width="4" height="2" fill="#000" rx="1"/><rect x="58" y="54" width="4" height="2" fill="#000" rx="1"/></svg>`,
+      T: `<svg viewBox="0 0 100 100"><rect x="25" y="40" width="50" height="45" rx="10" fill="#dcdcdc"/><path d="M30 40 L20 10 L45 35 Z" fill="#a9a9a9"/><path d="M70 40 L80 10 L55 35 Z" fill="#a9a9a9"/><circle cx="40" cy="55" r="3" fill="#4a4a4a"/><circle cx="60" cy="55" r="3" fill="#4a4a4a"/><path d="M40 70 H60" stroke="#4a4a4a" stroke-width="3" stroke-linecap="round"/></svg>`,
+      S: `<svg viewBox="0 0 100 100"><circle cx="50" cy="60" r="35" fill="#ffcc99"/><path d="M30 35 L15 10 L45 30 Z" fill="#ff9933"/><path d="M70 35 L85 10 L55 30 Z" fill="#ff9933"/><path d="M30 50 H70 M30 60 H70 M30 70 H70" stroke="#ff9933" stroke-width="4" opacity="0.3"/><circle cx="42" cy="50" r="3" fill="#4a4a4a"/><circle cx="58" cy="50" r="3" fill="#4a4a4a"/><path d="M45 65 Q50 72 55 65" fill="none" stroke="#4a4a4a" stroke-width="2"/></svg>`,
+      J: `<svg viewBox="0 0 100 100"><circle cx="50" cy="60" r="30" fill="#b0c4de"/><path d="M35 40 L25 15 L45 35 Z" fill="#b0c4de"/><path d="M65 40 L75 15 L55 35 Z" fill="#b0c4de"/><rect x="35" y="52" width="10" height="2" fill="#4a4a4a"/><rect x="55" y="52" width="10" height="2" fill="#4a4a4a"/><path d="M45 68 H55" stroke="#4a4a4a" stroke-width="1"/></svg>`,
+      N: `<svg viewBox="0 0 100 100"><circle cx="50" cy="60" r="30" fill="#fff" stroke="#ff8e8e"/><path d="M35 40 L25 15 L45 35 Z" fill="#ff8e8e"/><path d="M65 40 L75 15 L55 35 Z" fill="#ff8e8e"/><path d="M30 60 Q50 40 70 60" fill="none" stroke="#ff8e8e" stroke-width="1" stroke-dasharray="2 2"/><circle cx="42" cy="55" r="3" fill="#ff8e8e"/><circle cx="58" cy="55" r="3" fill="#ff8e8e"/></svg>`,
+      E: `<svg viewBox="0 0 100 100"><circle cx="50" cy="60" r="30" fill="#ffe4b5"/><path d="M35 40 L25 15 L45 35 Z" fill="#cd853f"/><path d="M65 40 L75 15 L55 35 Z" fill="#cd853f"/><circle cx="42" cy="55" r="3" fill="#4a4a4a"/><circle cx="58" cy="55" r="3" fill="#4a4a4a"/><circle cx="50" cy="65" r="6" fill="#ff6b6b" opacity="0.8"/></svg>`
+    };
+
+    const questions = [
+      { q: "如果世界是一本绘本，你希望自己是哪种色调？", opts: [{ t: "明亮温暖的鹅黄色", s: "E" }, { t: "深邃静谧的藏蓝色", s: "I" }, { t: "充满未知的迷雾灰", s: "N" }, { t: "干净整洁的纯白色", s: "J" }] },
+      { q: "在森林里散步，你被一个声音吸引，你觉得那是？", opts: [{ t: "精灵在举办热闹的派对", s: "E" }, { t: "风吹过树梢的自然呼吸", s: "S" }, { t: "一个等待被解开的古老谜题", s: "T" }, { t: "某种神秘生物的求助声", s: "F" }] },
+      { q: "你如何处理那些让你感到压力的事情？", opts: [{ t: "列出清单，逐一击破", s: "J" }, { t: "先睡一觉，醒来再说", s: "P" }, { t: "找信任的人倾诉出来", s: "F" }, { t: "独自钻研，直到找到逻辑出口", s: "T" }] },
+      { q: "如果可以拥有一项超能力，你选？", opts: [{ t: "瞬间移动到任何地方", s: "P" }, { t: "读懂人心的读心术", s: "F" }, { t: "预知未来的先知力", s: "N" }, { t: "掌控时间的怀表", s: "J" }] },
+      { q: "当你进入一个陌生的社交场合，你会？", opts: [{ t: "主动寻找话题，打破沉默", s: "E" }, { t: "找个角落，观察大家的互动", s: "I" }, { t: "直奔食物区，享受美食", s: "S" }, { t: "分析谁才是这里的核心人物", s: "T" }] },
+      { q: "你认为最理想的午后是？", opts: [{ t: "和三五好友在咖啡馆聊天", s: "E" }, { t: "独自在窗边看一本烧脑小说", s: "N" }, { t: "整理房间，让一切井然有序", s: "J" }, { t: "随性地在街头漫步，没有目的地", s: "P" }] },
+      { q: "面对一个非常感人的电影片段，你的反应？", opts: [{ t: "眼眶湿润，深受触动", s: "F" }, { t: "思考剧情的合理性和逻辑", s: "T" }, { t: "感叹导演的运镜和构图", s: "S" }, { t: "联想到自己曾经的某段经历", s: "N" }] },
+      { q: "关于“计划”，你的真实态度是？", opts: [{ t: "没有计划我会感到焦虑", s: "J" }, { t: "计划赶不上变化，随缘就好", s: "P" }, { t: "我只做大方向的规划", s: "N" }, { t: "计划是用来被打破的", s: "P" }] },
+      { q: "你更喜欢哪种赞美？", opts: [{ t: "“你真的很聪明，很有见地”", s: "T" }, { t: "“你是一个很温暖、很善良的人”", s: "F" }, { t: "“你总是那么独特，很有个性”", s: "N" }, { t: "“你做事非常靠谱，让人放心”", s: "J" }] },
+      { q: "你觉得孤独是什么？", opts: [{ t: "一种需要被填补的空虚", s: "E" }, { t: "一种自我充电的必要方式", s: "I" }, { t: "一种观察世界的独特视角", s: "N" }, { t: "一种偶尔会有的情绪感冒", s: "S" }] }
+    ];
+
+    const catResults = [
+      { name: "在云端漫步的布偶猫", tags: ["高共情力", "和平主义", "情感核心"], main: "你拥有极佳的感知力，能轻易察觉空气中细微的情绪变化。你像布偶猫一样，骨子里透着一种温柔的韧性，不屑于激烈的竞争，更倾向于用包容化解矛盾。", social: "在社交中，你是那个让人感到安全的存在。你从不咄咄逼人，总是先照顾他人的感受。但有时会因为太在意他人的评价而忽略了自己的需求。", tip: "给你的建议：温柔是你的武器，但别忘了为自己建立一道‘情绪防火墙’。", type: "F" },
+      { name: "拒绝被定义的奶牛猫", tags: ["逻辑奇才", "自由灵魂", "不按常理出牌"], main: "你的大脑里住着一个永远在跳舞的精灵。你拒绝任何形式的束缚和标签，奶牛猫那种‘神经质’的魅力在你身上体现为惊人的创造力。", social: "你是聚会中的‘惊喜制造机’，没有人能预测你下一秒会说什么。你享受这种随性，但也可能让追求秩序的人感到头疼。", tip: "给你的建议：保持你的古灵精怪，那是你对抗平庸世界最珍贵的宝物。", type: "P" },
+      { name: "在深夜思考的黑猫", tags: ["精神贵族", "敏锐观察", "极简主义"], main: "你拥有极高的精神纯度，孤独对你而言不是惩罚，而是奖赏。你像黑猫一样，在黑暗中拥有最清醒的视线。你话语不多，但每一句都直指核心。", social: "你信奉‘少即是多’。你的朋友圈非常精简，只有经过时间考验的人才能进入你的核心圈。你不需要通过喧嚣来证明自己的存在。", tip: "给你的建议：偶尔走出你的精神城堡，外面的阳光其实也没那么刺眼。", type: "I" },
+      { name: "掌控全局的缅因猫", tags: ["天生领袖", "护短狂魔", "绝对可靠"], main: "你天生自带一种‘保护者’的气场。冷静的逻辑和强大的执行力让你在危机时刻总能成为众人的主心骨。你像缅因猫一样，体型庞大却内心稳重。", social: "你习惯于承担责任，在团队或家庭中扮演‘定海神针’的角色。你对自己在乎的人极度护短，行动上总是第一时间提供支持。", tip: "给你的建议：偶尔也试着依靠一下别人，你不需要永远当那个无坚不摧的英雄。", type: "T" },
+      { name: "活在当下的橘猫", tags: ["乐天派", "务实主义", "能量补给站"], main: "你是一个典型的‘生活家’。你深知生活的本质就是一日三餐与当下的快乐。你像橘猫一样，拥有极强的生命力和适应力。", social: "你是大家眼里的‘开心果’，你的快乐非常单纯且具感染力。你讨厌复杂的权谋，更喜欢直来直去的交流。和你在一起，压力似乎都会消失。", tip: "给你的建议：保持你的简单与快乐，那是这个复杂时代最稀缺的能力。", type: "S" },
+      { name: "追求完美的英短蓝猫", tags: ["精致主义", "秩序守护者", "分寸感大师"], main: "你对生活有着近乎虔诚的审美要求。你喜欢一切都在掌控之中的感觉，计划表和整理术是你对抗混乱的武器。", social: "你非常注重社交礼仪和分寸感，从不轻易冒犯他人。这种‘恰到好处的冷淡’反而让你在人群中显得格外迷人且高贵。", tip: "给你的建议：偶尔允许生活出现一点‘意外’，那可能是惊喜的入口。", type: "J" },
+      { name: "渴望冒险的豹猫", tags: ["好奇心驱动", "行动派", "生命力巅峰"], main: "你是一个永远在路上的探索者。平凡的重复会让你感到窒息，你渴望新鲜感、挑战和未知的领域。你像豹猫一样，肌肉里充满了爆发力。", social: "你喜欢和同样有趣、有野心的人在一起。你的能量场很强，总能带动周围的人一起去尝试新鲜事物。你向往广阔的天地。", tip: "给你的建议：在奔跑的同时，偶尔停下来看看路边的风景，也许会有不一样的收获。", type: "N" },
+      { name: "社交中心点的暹罗猫", tags: ["情感热烈", "表达欲强", "忠诚伴侣"], main: "你是一个情感极其丰沛的人。你无法忍受冷漠和忽视，渴望与他人建立深度的连接。你像暹罗猫一样，会用最直白的方式表达你的爱与需求。", social: "你是人群中的焦点，擅长用言语和情绪感染他人。你对认定的朋友极度忠诚，但也容易因为对方的一点冷落而感到受伤。", tip: "给你的建议：学会享受独处，你的价值并不完全取决于他人的回应。", type: "E" }
+    ];
+
+    let currentQ = 0;
+    let userScores = { E:0, I:0, S:0, N:0, T:0, F:0, J:0, P:0 };
+
+    function startQuiz() {
+      document.getElementById('start-screen').style.display = 'none';
+      document.getElementById('quiz-area').style.display = 'flex';
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = questions[currentQ];
+      document.getElementById('progress-fill').style.width = `${((currentQ + 1) / questions.length) * 100}%`;
+      document.getElementById('question-text').innerText = q.q;
+      const optsDiv = document.getElementById('options');
+      optsDiv.innerHTML = '';
+      q.opts.forEach(o => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = o.t;
+        btn.onclick = () => {
+          userScores[o.s]++;
+          currentQ++;
+          if(currentQ < questions.length) showQuestion();
+          else showResult();
+        };
+        optsDiv.appendChild(btn);
+      });
+    }
+
+    function showResult() {
+      document.getElementById('quiz-area').style.display = 'none';
+      document.getElementById('result-screen').style.display = 'flex';
+      const topType = Object.keys(userScores).reduce((a, b) => userScores[a] > userScores[b] ? a : b);
+      const match = catResults.find(c => c.type === topType) || catResults[0];
+      document.getElementById('result-illustration').innerHTML = catSVGs[match.type];
+      document.getElementById('result-name').innerText = match.name;
+      document.getElementById('tag-container').innerHTML = match.tags.map(t => `<span class="tag-item">${t}</span>`).join('');
+      document.getElementById('analysis-main').innerText = match.main;
+      document.getElementById('analysis-social').innerText = match.social;
+      document.getElementById('analysis-tip').innerText = match.tip;
+    }
+  </script>
+</body>
+</html>
